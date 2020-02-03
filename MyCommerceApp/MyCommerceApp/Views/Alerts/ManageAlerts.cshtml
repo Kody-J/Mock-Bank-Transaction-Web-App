@@ -1,0 +1,119 @@
+﻿@model IEnumerable<MyCommerceApp.Models.AlertSettings>
+
+@{
+    ViewBag.Title = "ManageAlerts";
+    var count = 1;
+}
+<style>
+
+    input {
+        border-radius: 3px 3px 3px 3px;
+        /*background: #e6ffe6;*/
+    }
+
+    .btn {
+        font-weight: 400;
+        width: 100px;
+        height: 50px;
+        font-size: large;
+    }
+
+    hr {
+        display: none;
+    }
+
+    input[type=time]::-webkit-inner-spin-button,
+    input[type=time]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=time]::-webkit-calendar-picker-indicator:not([aria-valuenow]) {
+        color: transparent;
+    }
+</style>
+
+
+<h2 style="margin-top:5%; margin-bottom:1%">Manage Alerts</h2>
+@using (Html.BeginForm("ManageAlerts", "Alerts", FormMethod.Post))
+{
+
+    <table class="table-bordered table">
+        <thread>
+            <tr>
+                <th><h4><b>Alert Type</b></h4></th>
+                <th style="width:70px;"><h4><b>Active</b></h4></th>
+            </tr>
+        </thread>
+        <tbody>
+            @{ foreach (var item in Model)
+
+                {
+                    <tr>
+                        <td>
+                            @Html.Raw(@GetAlertType(item.AlertId))
+                            @if (item.AlertId != 2 && item.AlertId != 4)
+                            {
+                                @Html.TextBox(count.ToString(), item.Setting, new { @type = "number" })
+                            }
+                            else if (item.AlertId == 2)
+                            {
+                                var times = item.Setting.Split(' ');
+                                if (times.Length >= 2)
+                                {
+                                    @Html.TextBox(count.ToString(), times[0], new { @type = "time" })
+                                    <label value="and"></label>
+                                    @Html.TextBox(count.ToString(), times[1], new { @type = "time" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox(count.ToString(), null, new { @type = "time" })
+                                    <label value="and"></label>
+                                    @Html.TextBox(count.ToString(), null, new { @type = "time" })
+                                }
+                            }
+                        </td>
+                        <td>
+                            @if (item.Active)
+                            {
+                                item.Active = false;
+                                @Html.CheckBox(count.ToString(), htmlAttributes: new { @checked = true })
+                            }
+                            else
+                            {
+                                @Html.CheckBox(count.ToString())
+                            }
+                            @{count = count + 1;}
+                        </td>
+                    </tr>
+
+                }
+
+            }
+        </tbody>
+    </table>
+    <input type="submit" value="Save" class="btn btn-success" style="float: right;">
+}
+
+
+@functions{
+    public string GetAlertType(long alertId)
+    {
+        switch (alertId)
+        {
+            case 1:
+                return "<label>My balance is less than $ ";
+            case 2:
+                return "<label for = 'startTimeAlert'>A transaction occurs between ";
+            case 3:
+                return "<label for = 'transAmountAlert'>A transaction amount exceeds ";
+            case 4:
+                return "<b>A transaction is outside of my home state</b>";
+            default:
+                return "";
+        }
+    }
+
+}
